@@ -1,13 +1,12 @@
-# You can change this base image to anything else
-# But make sure to use the correct version of Java
+# Étape 1 : Build avec Maven
+FROM maven:3.8.6-openjdk-11 AS builder
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Étape 2 : Image finale
 FROM adoptopenjdk/openjdk11:alpine-jre
-
-# Simply the artifact path
-ARG artifact=target/spring-boot-web.jar
-
 WORKDIR /opt/app
-
-COPY ${artifact} app.jar
-
-# This should not be changed
+COPY --from=builder /app/target/spring-boot-web.jar app.jar
 ENTRYPOINT ["java","-jar","app.jar"]
