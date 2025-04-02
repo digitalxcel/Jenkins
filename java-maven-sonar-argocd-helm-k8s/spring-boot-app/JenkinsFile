@@ -1,8 +1,8 @@
 pipeline {
   agent {
     docker {
-      image 'abdallahs5/maven-abdallah-docker-agent:v1'https://github.com/digitalxcel/Jenkins/edit/main/java-maven-sonar-argocd-helm-k8s/spring-boot-app/JenkinsFile
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock -itd' // Keep container alive
+      image 'abdallahs5/maven-abdallah-docker-agent:v1'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock -itd'
       registryUrl 'https://registry.hub.docker.com'
       registryCredentialsId 'dockerhub-creds'
     }
@@ -36,7 +36,7 @@ pipeline {
       }
       steps {
         dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
-          withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN']) {
+          withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
             sh 'mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
           }
         }
@@ -65,7 +65,7 @@ pipeline {
         GIT_REPO = "digitalxcel/Jenkins"
       }
       steps {
-        withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN']) {
+        withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
           dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests') {
             sh '''
               sed -i "s|replaceImageTag|${BUILD_NUMBER}|g" deployment.yml
@@ -85,7 +85,7 @@ pipeline {
   
   post {
     always {
-      node { // Correction du cleanWs
+      node {
         cleanWs()
       }
     }
