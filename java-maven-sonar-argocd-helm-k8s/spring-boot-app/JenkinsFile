@@ -2,7 +2,7 @@ pipeline {
   agent {
     docker {
       image 'abdallahs5/maven-abdallah-docker-agent:v1'
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock -itd'
+      args '--user root -v /var/run/docker.sock:/var/run/docker.sock -itd --entrypoint='''
       registryUrl 'https://registry.hub.docker.com'
       registryCredentialsId 'dockerhub-creds'
     }
@@ -16,7 +16,7 @@ pipeline {
           branches: [[name: 'main']],
           userRemoteConfigs: [[
             url: 'https://github.com/digitalxcel/Jenkins.git',
-            credentialsId: 'github'
+            credentialsId: 'github' // Doit correspondre à vos credentials GitHub
           ]]
         ])
       }
@@ -52,7 +52,6 @@ pipeline {
           dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
             sh 'docker build -t ${DOCKER_IMAGE} .'
           }
-          
           docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-creds') {
             docker.image("${DOCKER_IMAGE}").push()
           }
@@ -85,7 +84,7 @@ pipeline {
   
   post {
     always {
-      node('built-in') { // Correction : Ajout du label 'built-in' ou autre
+      node('built-in') { // Utilisez le label de votre agent Jenkins
         cleanWs()
       }
     }
