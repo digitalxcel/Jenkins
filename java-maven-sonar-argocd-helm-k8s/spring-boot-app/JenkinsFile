@@ -1,12 +1,12 @@
 pipeline {
-  agent {
-    docker {
-      image 'abdallahs5/maven-abdallah-docker-agent:v1' // ✅ Image corrigée
-      args '--user root -v /var/run/docker.sock:/var/run/docker.sock -itd --entrypoint=""'
-      registryUrl 'https://registry.hub.docker.com'
-      registryCredentialsId 'dockerhub-creds' // ✅ ID des credentials Docker Hub
-    }
+ agent {
+  docker {
+    image 'abdallahs5/maven-abdallah-docker-agent:v1'
+    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
+    registryUrl 'https://registry.hub.docker.com'
+    registryCredentialsId 'dockerhub-creds'
   }
+}
   
   stages {
     stage('Checkout') {
