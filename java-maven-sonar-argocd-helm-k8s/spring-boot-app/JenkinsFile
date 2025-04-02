@@ -1,10 +1,10 @@
 pipeline {
   agent {
     docker {
-      image 'abdallahs5/maven-abdallah-docker-agent:v1'
+      image 'abdallahs5/maven-abdallah-docker-agent:v1' // ✅ Image corrigée
       args '--user root -v /var/run/docker.sock:/var/run/docker.sock -itd --entrypoint=""'
       registryUrl 'https://registry.hub.docker.com'
-      registryCredentialsId 'dockerhub-creds'
+      registryCredentialsId 'dockerhub-creds' // ✅ ID des credentials Docker Hub
     }
   }
   
@@ -16,7 +16,7 @@ pipeline {
           branches: [[name: 'main']],
           userRemoteConfigs: [[
             url: 'https://github.com/digitalxcel/Jenkins.git',
-            credentialsId: 'github' // ✅ Vérifiez cet ID dans Jenkins
+            credentialsId: 'github' // ✅ ID des credentials GitHub
           ]]
         ])
       }
@@ -25,14 +25,14 @@ pipeline {
     stage('Build and Test') {
       steps {
         dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
-          sh 'mvn clean package -DskipTests'
+          sh 'mvn clean package -DskipTests' // ✅ Commande Maven
         }
       }
     }
 
     stage('Static Code Analysis') {
       environment {
-        SONAR_URL = "http://13.38.0.20:9000" // ✅ Vérifiez l'IP/Port
+        SONAR_URL = "http://34.201.116.83:9000" // ✅ IP/Port SonarQube
       }
       steps {
         dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
@@ -50,10 +50,10 @@ pipeline {
       steps {
         script {
           dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
-            sh 'docker build -t ${DOCKER_IMAGE} .'
+            sh 'docker build -t ${DOCKER_IMAGE} .' // ✅ Build de l'image
           }
           docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-creds') {
-            docker.image("${DOCKER_IMAGE}").push()
+            docker.image("${DOCKER_IMAGE}").push() // ✅ Push vers Docker Hub
           }
         }
       }
@@ -68,10 +68,8 @@ pipeline {
           dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests') {
             sh '''
               sed -i "s|replaceImageTag|${BUILD_NUMBER}|g" deployment.yml
-              
               git config --global user.email "laye95seck@gmail.com"
               git config --global user.name "Jenkins CI"
-              
               git add deployment.yml
               git commit -m "Update image to version ${BUILD_NUMBER}"
               git push "https://${GITHUB_TOKEN}@github.com/${GIT_REPO}.git" HEAD:main
@@ -84,7 +82,7 @@ pipeline {
   
   post {
     always {
-      node('built-in') { // ✅ Vérifiez le label de votre agent
+      node('built-in') { 
         cleanWs()
       }
     }
