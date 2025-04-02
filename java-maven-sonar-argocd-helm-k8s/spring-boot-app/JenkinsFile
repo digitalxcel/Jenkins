@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'abdallahs5/maven-abdallah-docker-agent:v1'
-            args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint= tail -f /dev/null' // ✅ Correction clé
+            args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint="" -- /bin/sh -c "tail -f /dev/null"' // ✅ Correction
             registryUrl 'https://registry.hub.docker.com'
             registryCredentialsId 'dockerhub-creds'
         }
@@ -86,7 +86,9 @@ pipeline {
   
     post {
         always {
-            cleanWs()
+            node('built-in') { // ✅ Contexte ajouté
+                cleanWs()
+            }
         }
     }
 }
