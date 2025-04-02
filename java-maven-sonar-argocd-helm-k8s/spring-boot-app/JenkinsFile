@@ -32,7 +32,7 @@ pipeline {
 
     stage('Static Code Analysis') {
       environment {
-        SONAR_URL = "http://13.38.63.103:9000"
+        SONAR_URL = "http://13.38.0.20:9000"
       }
       steps {
         dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
@@ -85,7 +85,7 @@ pipeline {
   
   post {
     always {
-      node {
+      node('built-in') { // Correction : Ajout du label 'built-in' ou autre
         cleanWs()
       }
     }
