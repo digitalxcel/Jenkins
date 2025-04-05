@@ -32,7 +32,7 @@ pipeline {
 
         stage('Static Code Analysis') {
             environment {
-                SONAR_URL = "http://13.38.0.20:9000"
+                SONAR_URL = "http://51.44.215.59:9000"
             }
             steps {
                 dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
