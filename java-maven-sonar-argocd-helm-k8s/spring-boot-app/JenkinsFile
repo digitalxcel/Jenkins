@@ -1,8 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'maven:3.8.6-jdk-11' // ✅ Image avec Maven préinstallé
-            args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
+            image 'docker.io/library/maven:3.8.6-jdk-11' // ✅ Image officielle
+            args '-u root -v /var/run/docker.sock:/var/run/docker.sock --privileged'
             registryUrl 'https://registry.hub.docker.com'
             registryCredentialsId 'dockerhub-creds'
         }
@@ -45,15 +45,15 @@ pipeline {
 
         stage('Build and Push Docker Image') {
             environment {
-                DOCKER_IMAGE = "abdallahs5/ultimate-cicd:${BUILD_NUMBER}"
+                DOCKER_IMAGE = "abdallahs5/ultimate-cicd:${env.BUILD_NUMBER}" // ✅ Variable d'environnement explicite
             }
             steps {
                 script {
                     dir('java-maven-sonar-argocd-helm-k8s/spring-boot-app') {
-                        sh 'docker build -t ${DOCKER_IMAGE} .'
+                        sh "docker build -t ${env.DOCKER_IMAGE} ."
                     }
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-creds') {
-                        docker.image("${DOCKER_IMAGE}").push()
+                        docker.image("${env.DOCKER_IMAGE}").push()
                     }
                 }
             }
@@ -88,6 +88,10 @@ pipeline {
         always {
             node('built-in') {
                 cleanWs()
+                script {
+                    // Nettoyage des conteneurs Docker
+                    sh 'docker ps -aq | xargs --no-run-if-empty docker stop | xargs --no-run-if-empty docker rm'
+                }
             }
         }
     }
