@@ -1,8 +1,8 @@
 pipeline {
     agent {
         docker {
-            image 'abdallahs5/maven-abdallah-docker-agent:v1'
-            args '-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=' // ✅ Syntaxe corrigée
+            image 'maven:3.8.6-jdk-11' // ✅ Image avec Maven préinstallé
+            args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
             registryUrl 'https://registry.hub.docker.com'
             registryCredentialsId 'dockerhub-creds'
         }
@@ -16,7 +16,7 @@ pipeline {
                     branches: [[name: 'main']],
                     userRemoteConfigs: [[
                         url: 'https://github.com/digitalxcel/Jenkins.git',
-                        credentialsId: 'github'
+                        credentialsId: 'github' 
                     ]]
                 ])
             }
