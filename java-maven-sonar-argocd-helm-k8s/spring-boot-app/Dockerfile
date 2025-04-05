@@ -4,20 +4,17 @@
 #COPY . .
 #RUN mvn clean package -DskipTests
 
-#FROM openjdk:17-alpine
-#COPY --from=builder /app/target/*.jar /app/app.jar
-#ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 # Étape de build
 FROM maven:3.8.6-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY pom.xml ./
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline -B
 COPY src/ ./src/
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -Dmaven.test.skip=true
 
 # Étape d'exécution
 FROM eclipse-temurin:17-jre-jammy
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN addgroup --system appgroup && adduser --system --no-create-home --ingroup appgroup appuser
 USER appuser
-COPY --from=builder --chown=appuser:appgroup /app/target/spring-boot-app-*.jar /app/app.jar
+COPY --from=builder --chown=appuser:appgroup /app/target/*.jar /app/app.jar
 ENTRYPOINT ["java", "-Xmx512m", "-XX:+UseG1GC", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/app/app.jar"]
